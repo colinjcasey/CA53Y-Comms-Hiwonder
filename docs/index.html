@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flash CA53Y Comms for the Hiwonder ESP32-S3 board</title>
+<meta name="theme-color" content="#0F2A30">
+<script type="module" src="https://unpkg.com/esp-web-tools@10.4.0/dist/web/install-button.js?module"></script>
+<style>
+:root{--lac:#0F2A30;--lac2:#17393F;--line:#2D545A;--gold:#CFA84E;--champ:#EAD9A8;--ivory:#F2EBD9;--mist:#A3B8B2;--rose:#E39098;
+--disp:Didot,"Bodoni 72","Bodoni MT","Playfair Display",Georgia,serif;--body:"Avenir Next",Avenir,"Segoe UI",Roboto,system-ui,sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--lac);color:var(--ivory);font:17px/1.55 var(--body)}
+a{color:var(--gold)}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.plate{position:relative;overflow:hidden;text-align:center;padding:64px 20px 48px;border-bottom:1px solid var(--line)}
+.plate::before{content:"";position:absolute;left:50%;top:100%;width:1100px;height:1100px;transform:translate(-50%,-50%);
+background:repeating-conic-gradient(from 0deg,rgba(207,168,78,.22) 0 3deg,transparent 3deg 10deg);
+-webkit-mask:radial-gradient(closest-side,transparent 14%,#000 16%,#000 52%,transparent 100%);
+mask:radial-gradient(closest-side,transparent 14%,#000 16%,#000 52%,transparent 100%);pointer-events:none}
+.plate>*{position:relative}
+h1{margin:0;font:400 clamp(44px,11vw,84px)/1 var(--disp);color:var(--champ);letter-spacing:.01em}
+.badge{display:inline-block;margin-top:14px;padding:3px 18px;border:1px solid var(--gold);border-left-width:5px;border-right-width:5px;color:var(--gold);font:400 20px/1.3 var(--disp);letter-spacing:.18em;background:var(--lac)}
+.lede{max-width:44ch;margin:18px auto 0;color:var(--mist)}
+main{max-width:860px;margin:0 auto;padding:8px 20px 64px}
+h2{font:400 30px/1.2 var(--disp);color:var(--champ);margin:48px 0 10px}
+p{max-width:64ch}
+.board{border:1px solid var(--line);border-top:3px double var(--gold);padding:22px;background:var(--lac2);margin-top:20px;max-width:560px}
+.board h3{margin:0;font:400 24px/1.2 var(--disp);color:var(--champ)}
+.board p{color:var(--mist);font-size:15px;margin:8px 0 18px}
+esp-web-install-button button[slot=activate]{font:600 16px/1 var(--body);background:var(--gold);color:#1A2A2C;border:0;padding:13px 20px;border-radius:2px;cursor:pointer}
+.note{color:var(--mist);font-size:15px}
+.warn{border-left:4px solid var(--rose);padding:6px 14px;color:var(--ivory);background:rgba(227,144,152,.08);font-size:15px;max-width:64ch}
+ol,ul{padding-left:22px;max-width:64ch}
+li{margin:6px 0}
+footer{text-align:center;color:var(--mist);font-size:14px;padding:30px 20px;border-top:1px solid var(--line)}
+@media (prefers-reduced-motion:no-preference){.plate::before{animation:turn 240s linear infinite}@keyframes turn{to{transform:translate(-50%,-50%) rotate(360deg)}}}
+</style>
+</head>
+<body>
+<header class="plate">
+  <h1>CA53Y Comms</h1>
+  <div class="badge">HIWONDER S3</div>
+  <p class="lede">Turns the Hiwonder ESP32-S3 Development Board into a CA53Y messenger and repeater with a touchscreen, a clock, your cameras, and hold-to-talk. Flash it from this page.</p>
+</header>
+<main>
+  <h2>Flash your board</h2>
+  <p>Plug the board into this computer with a USB-C data cable, then click Install. Use Chrome or Edge on a desktop or laptop; Safari and Firefox can't talk to USB serial devices.</p>
+  <div class="board">
+    <h3>Hiwonder ESP32-S3 Development Board</h3>
+    <p>The AI Vision &amp; Smart Chat board with the 2.0 inch touchscreen, speaker and microphone. Replaces Hiwonder's AI firmware; you can flash theirs back any time.</p>
+    <esp-web-install-button manifest="manifest.json"><button slot="activate">Install CA53Y Comms</button>
+      <span slot="unsupported">This browser can't flash boards. Open this page in Chrome or Edge on a computer.</span>
+      <span slot="not-allowed">Flashing needs a secure page (https).</span></esp-web-install-button>
+  </div>
+  <p class="note">No port shows up? Try another cable (many are charge-only). If it still won't connect, hold BOOT while you click Install.</p>
+
+  <h2>After it boots</h2>
+  <ol>
+    <li>Type your name. It's shown to people you message.</li>
+    <li>Tap Chats, then + to add someone by their device ID, or Nearby to see who's in range.</li>
+    <li>In a chat, tap Type to use the keyboard, or hold Hold to talk and speak.</li>
+    <li>New messages fill the screen. Tap Play to hear them read aloud, or Reply to answer.</li>
+    <li>For the clock and cameras, open Settings, then Wi-Fi, and join your network.</li>
+  </ol>
+  <p class="warn">Choosing "Erase device" during install wipes your name, contacts, Wi-Fi and cameras. Leave it unchecked when you're only updating.</p>
+
+  <h2>Wi-Fi, cameras and voice</h2>
+  <p>Nothing is built in: you enter your own network, cameras and speech server, on the board or from your phone at the address shown under Settings, then Web settings.</p>
+  <p>The CA53Y mesh runs on Wi-Fi channel 1. If your router is also on channel 1, the board stays on Wi-Fi and keeps relaying messages. On any other channel it joins Wi-Fi only while it needs it, for the clock, a camera on screen, or turning speech into text, and the status bar shows when the mesh is paused.</p>
+  <p>Hold to talk sends your recording to a speech-to-text server you choose (OpenAI, or a Whisper server on your own network), then shows you the text before you send it. Without Wi-Fi, use the keyboard.</p>
+  <p>Have other CA53Y hardware? See <a href="https://colinjcasey.github.io/CA53Y-Comms/">dev boards and relays</a> and the <a href="https://github.com/colinjcasey/CA53Y-Comms-Display">2.8 inch Display</a>.</p>
+</main>
+<footer>CA53Y IND. Source and build notes <a href="https://github.com/colinjcasey/CA53Y-Comms-Hiwonder">on GitHub</a>.</footer>
+</body>
+</html>
