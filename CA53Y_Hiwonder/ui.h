@@ -236,7 +236,7 @@ bool thStick = true;
 uint32_t alertUid = 0;
 
 // keyboard
-struct Editor { uint8_t target, layer, ret; bool shift, mask; int maxLen; char buf[200]; char title[40]; char hint[90]; } ed;
+struct Editor { uint8_t target, layer, ret; bool shift, mask, secret; int maxLen; char buf[200]; char title[40]; char hint[90]; } ed;
 
 // forms
 struct { bool editing; char id[20], nick[24], pin[33]; uint8_t pinMode; bool hadPin; } cf;   // pinMode 0 keep, 1 set, 2 clear
@@ -584,11 +584,16 @@ static int buildKeys(Key *k) {
     row(1, "asdfghjkl", 16, 32);
     k[n++] = {0, KB_Y + 2 * KB_RH, 48, KB_RH, 0, 1};
     row(2, "zxcvbnm", 48, 32);
-  } else {
+  } else if (ed.layer == 1) {
     row(0, "1234567890", 0, 32);
     row(1, "-/:;()&@\"", 16, 32);
-    k[n++] = {0, KB_Y + 2 * KB_RH, 48, KB_RH, 0, 1};
+    k[n++] = {0, KB_Y + 2 * KB_RH, 48, KB_RH, 0, 1};   // "#+=" : more symbols
     row(2, ".,?!'#+", 48, 32);
+  } else {
+    row(0, "[]{}#%^*+=", 0, 32);
+    row(1, "_\\|~<>$`'", 16, 32);
+    k[n++] = {0, KB_Y + 2 * KB_RH, 48, KB_RH, 0, 1};   // "123" : back to numbers
+    row(2, ".,?!@&-", 48, 32);
   }
   k[n++] = {272, KB_Y + 2 * KB_RH, 48, KB_RH, 0, 2};
   k[n++] = {0, KB_Y + 3 * KB_RH, 56, KB_RH, 0, 3};
@@ -601,6 +606,7 @@ static int buildKeys(Key *k) {
 static void drawKeys() {
   fillR(0, 0, W, H, COL_LAC);
   txt(ed.title, 10, 10, F_SMALL, COL_MIST, D_ML);
+
   txt("Cancel", W - 10, 10, F_SMALL, COL_GOLD, D_MR);
   rfill(6, 22, W - 12, 44, 3, COL_LAC2);
   rframe(6, 22, W - 12, 44, 3, COL_LINE);
@@ -621,6 +627,7 @@ static void drawKeys() {
   char cnt[16];
   snprintf(cnt, sizeof cnt, "%d/%d", (int)strlen(ed.buf), ed.maxLen);
   txt(cnt, W - 12, 60, F_SMALL, COL_MIST, D_MR);
+  if (ed.secret && ed.buf[0]) txt(ed.mask ? "Tap to show" : "Tap to hide", W - 60, 60, F_SMALL, COL_GOLD, D_MR);
   Key k[40];
   int n = buildKeys(k);
   for (int i = 0; i < n; i++) {
@@ -630,7 +637,7 @@ static void drawKeys() {
     rfill(q.x + 2, q.y + 3, q.w - 4, q.h - 6, 4, bg);
     char lab[8] = {0};
     if (q.code == 0) { lab[0] = (ed.shift && q.c >= 'a' && q.c <= 'z') ? q.c - 32 : q.c; }
-    else if (q.code == 1) strcpy(lab, ed.shift ? "SHIFT" : "shift");
+    else if (q.code == 1) strcpy(lab, ed.layer == 1 ? "#+=" : ed.layer == 2 ? "123" : ed.shift ? "SHIFT" : "shift");
     else if (q.code == 2) strcpy(lab, "<x");
     else if (q.code == 3) strcpy(lab, ed.layer ? "ABC" : "123");
     else if (q.code == 4) strcpy(lab, "Done");
@@ -645,6 +652,7 @@ static void openEditor(uint8_t target, const char *title, const char *initial, i
   ed.layer = 0;
   ed.shift = target == ED_MSG || target == ED_MYNAME || target == ED_C_NICK || target == ED_CAM_NAME;
   ed.mask = mask;
+  ed.secret = mask;   // secret fields can be revealed by tapping the text box
   ed.maxLen = min(maxLen, (int)sizeof ed.buf - 1);
   strlcpy(ed.buf, initial ? initial : "", sizeof ed.buf);
   strlcpy(ed.title, title, sizeof ed.title);
@@ -728,6 +736,7 @@ static void editorDone() {
 
 static void keyTap(int x, int y) {
   if (y < 20 && x > W - 70) { scr = ed.ret; if (!isSetup) scr = SCR_KEYS; needDraw = true; return; }
+  if (ed.secret && y >= 22 && y < 66) { ed.mask = !ed.mask; needDraw = true; return; }
   Key k[40];
   int n = buildKeys(k);
   for (int i = 0; i < n; i++) {
@@ -743,11 +752,11 @@ static void keyTap(int x, int y) {
           if (ed.shift && q.code == 0 && ed.layer == 0) ed.shift = false;
         }
         break;
-      case 1: ed.shift = !ed.shift; break;
+      case 1: if (ed.layer) ed.layer = ed.layer == 1 ? 2 : 1; else ed.shift = !ed.shift; break;
       case 2:
         if (L) { L--; while (L > 0 && ((uint8_t)ed.buf[L] & 0xC0) == 0x80) L--; ed.buf[L] = 0; }
         break;
-      case 3: ed.layer ^= 1; break;
+      case 3: ed.layer = ed.layer ? 0 : 1; break;
       case 4: editorDone(); return;
     }
     needDraw = true;

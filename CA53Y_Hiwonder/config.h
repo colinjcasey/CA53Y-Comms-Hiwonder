@@ -2,7 +2,7 @@
 // Pin map from a working XiaoZhi board definition for this board (HiwonderExploit_S3).
 #pragma once
 
-#define FW_VERSION "1.1.0"
+#define FW_VERSION "1.1.1"
 
 // ---------- screen: ST7789 240x320 on SPI, shown landscape 320x240 ----------
 #define LCD_SCLK        21
