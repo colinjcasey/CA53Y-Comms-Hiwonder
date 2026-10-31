@@ -29,6 +29,13 @@ p{max-width:64ch}
 .board h3{margin:0;font:400 24px/1.2 var(--disp);color:var(--champ)}
 .board p{color:var(--mist);font-size:15px;margin:8px 0 18px}
 esp-web-install-button button[slot=activate]{font:600 16px/1 var(--body);background:var(--gold);color:#1A2A2C;border:0;padding:13px 20px;border-radius:2px;cursor:pointer}
+.net{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:14px 0}
+.net label{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);padding:16px;background:var(--lac2);cursor:pointer}
+.net label:has(input:checked){border-color:var(--gold)}
+.net input{accent-color:#CFA84E;margin-top:5px}
+.net b{display:block;font:400 22px/1.2 var(--disp);color:var(--champ)}
+.net span{color:var(--mist);font-size:15px}
+.warn strong{color:var(--rose);font-weight:600}
 .note{color:var(--mist);font-size:15px}
 .warn{border-left:4px solid var(--rose);padding:6px 14px;color:var(--ivory);background:rgba(227,144,152,.08);font-size:15px;max-width:64ch}
 ol,ul{padding-left:22px;max-width:64ch}
@@ -45,11 +52,16 @@ footer{text-align:center;color:var(--mist);font-size:14px;padding:30px 20px;bord
 </header>
 <main>
   <h2>Flash your board</h2>
-  <p>Plug the board into this computer with a USB-C data cable, then click Install. Use Chrome or Edge on a desktop or laptop; Safari and Firefox can't talk to USB serial devices.</p>
+  <p>Plug the board into this computer with a USB-C data cable, pick your network, then click Install. Use Chrome or Edge on a desktop or laptop; Safari and Firefox can't talk to USB serial devices.</p>
+  <div class="net" role="radiogroup" aria-label="Network">
+    <label><input type="radio" name="net" value="std" checked><span><b>Standard</b>Talks to every Standard CA53Y Comms device.</span></label>
+    <label><input type="radio" name="net" value="lr"><span><b>Long Range</b>Slower radio mode, each hop reaches noticeably farther.</span></label>
+  </div>
+  <p class="warn"><strong>Standard and Long Range devices can't hear each other.</strong> Pick the same network as the messengers and relays in your group.</p>
   <div class="board">
     <h3>Hiwonder ESP32-S3 Development Board</h3>
     <p>The AI Vision &amp; Smart Chat board with the 2.0 inch touchscreen, speaker and microphone. Replaces Hiwonder's AI firmware; you can flash theirs back any time.</p>
-    <esp-web-install-button manifest="manifest.json"><button slot="activate">Install CA53Y Comms</button>
+    <esp-web-install-button id="inst" manifest="manifest.json"><button slot="activate" data-std="Install CA53Y Comms" data-lr="Install Long Range">Install CA53Y Comms</button>
       <span slot="unsupported">This browser can't flash boards. Open this page in Chrome or Edge on a computer.</span>
       <span slot="not-allowed">Flashing needs a secure page (https).</span></esp-web-install-button>
   </div>
@@ -63,14 +75,24 @@ footer{text-align:center;color:var(--mist);font-size:14px;padding:30px 20px;bord
     <li>New messages fill the screen. Tap Play to hear them read aloud, or Reply to answer.</li>
     <li>For the clock and cameras, open Settings, then Wi-Fi, and join your network.</li>
   </ol>
-  <p class="warn">Choosing "Erase device" during install wipes your name, contacts, Wi-Fi and cameras. Leave it unchecked when you're only updating.</p>
+  <p class="warn">Choosing "Erase device" during install wipes your name, contacts, Wi-Fi and cameras. Leave it unchecked when you're only updating. Long Range installs keep your settings, so you can switch to Long Range without setting the board up again. Settings, About shows which network it's on.</p>
 
   <h2>Wi-Fi, cameras and voice</h2>
   <p>Nothing is built in: you enter your own network, cameras and speech server, on the board or from your phone at the address shown under Settings, then Web settings.</p>
   <p>The CA53Y mesh runs on Wi-Fi channel 1. If your router is also on channel 1, the board stays on Wi-Fi and keeps relaying messages. On any other channel it joins Wi-Fi only while it needs it, for the clock, a camera on screen, or turning speech into text, and the status bar shows when the mesh is paused.</p>
+  <p>On Long Range, mesh messages always go out in Long Range mode, and Wi-Fi to your router still works normally.</p>
   <p>Hold to talk sends your recording to a speech-to-text server you choose (OpenAI, or a Whisper server on your own network), then shows you the text before you send it. Without Wi-Fi, use the keyboard.</p>
   <p>Have other CA53Y hardware? See <a href="https://colinjcasey.github.io/CA53Y-Comms/">dev boards and relays</a> and the <a href="https://github.com/colinjcasey/CA53Y-Comms-Display">2.8 inch Display</a>.</p>
 </main>
 <footer>CA53Y IND. Source and build notes <a href="https://github.com/colinjcasey/CA53Y-Comms-Hiwonder">on GitHub</a>.</footer>
+<script>
+function setNet(lr){
+  document.getElementById("inst").setAttribute("manifest",lr?"manifest_lr.json":"manifest.json");
+  document.querySelectorAll("button[data-lr]").forEach(e=>{e.textContent=lr?e.dataset.lr:e.dataset.std});
+  if(location.hash!==(lr?"#long-range":"")) history.replaceState(null,"",lr?"#long-range":location.pathname);
+}
+document.querySelectorAll("input[name=net]").forEach(r=>r.addEventListener("change",()=>setNet(r.value==="lr")));
+if(location.hash==="#long-range"){document.querySelector("input[value=lr]").checked=true;setNet(true)}
+</script>
 </body>
 </html>

@@ -849,7 +849,7 @@ static String settingValue(uint8_t s) {
     case S_VOL: return VOL_LBL[volIdx];
     case S_SLEEP: return SLEEP_LBL[sleepIdx];
     case S_ROT: return flip180 ? "Flipped" : "Normal";
-    case S_ABOUT: return String(myId + PREFIX_LEN) + "  v" FW_VERSION;
+    case S_ABOUT: return String(myId + PREFIX_LEN) + "  v" FW_VERSION + (LONG_RANGE ? "  Long Range" : "  Standard");
     default: return "";
   }
 }

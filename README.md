@@ -14,6 +14,21 @@ Off-grid CA53Y messaging on the **Hiwonder ESP32-S3 Development Board (AI Vision
 
 Nothing personal is built into the firmware. Wi-Fi, cameras and the speech server are entered by whoever owns the board and saved on it.
 
+## Standard or Long Range
+
+The firmware comes in two networks, set with `LONG_RANGE` in `config.h` (or `-DLONG_RANGE=1`):
+
+| Network        | `LONG_RANGE` | Radio                                                                  |
+|----------------|--------------|------------------------------------------------------------------------|
+| **Standard**   | `0`          | Normal ESP-NOW                                                         |
+| **Long Range** | `1`          | Mesh messages go out in Espressif's Long Range (LR) mode at 250 kbps    |
+
+**Standard and Long Range devices can't hear each other.** Use the same setting as the messengers and relays
+in your group ([CA53Y Comms](https://github.com/colinjcasey/CA53Y-Comms) has both). On this board the Long
+Range build keeps normal Wi-Fi enabled alongside LR, so online mode, Wi-Fi scans and cameras still work.
+Settings > About shows which network it's on. Long Range installs from the web flasher keep your settings
+unless you tick Erase.
+
 ## Flash it
 
 ### Easiest: from the browser
@@ -34,7 +49,7 @@ Open the project's web flasher (GitHub Pages, see below) in **Chrome or Edge** o
 arduino-cli core install esp32:esp32@3.3.12
 arduino-cli lib install "LovyanGFX@1.2.33" "ESP8266Audio@2.4.1" "ESP8266SAM@1.1.0"
 FQBN=esp32:esp32:esp32s3:PSRAM=opi,FlashSize=16M,PartitionScheme=app3M_fat9M_16MB
-arduino-cli compile -b $FQBN CA53Y_Hiwonder
+arduino-cli compile -b $FQBN CA53Y_Hiwonder        # add --build-property "compiler.cpp.extra_flags=-DLONG_RANGE=1" for Long Range
 arduino-cli upload  -b $FQBN -p /dev/ttyUSB0 CA53Y_Hiwonder
 ```
 
@@ -42,6 +57,14 @@ arduino-cli upload  -b $FQBN -p /dev/ttyUSB0 CA53Y_Hiwonder
 
 ```
 esptool --chip esp32s3 --port /dev/ttyUSB0 write-flash 0x0 docs/firmware/CA53Y_Hiwonder_S3.bin
+```
+
+Long Range (keeps saved settings):
+
+```
+cd docs/firmware/lr
+esptool --chip esp32s3 --port /dev/ttyUSB0 write-flash 0x0 CA53Y_Hiwonder_S3_LR.bootloader.bin \
+  0x8000 CA53Y_Hiwonder_S3_LR.partitions.bin 0xe000 boot_app0.bin 0x10000 CA53Y_Hiwonder_S3_LR.bin
 ```
 
 ## Using it

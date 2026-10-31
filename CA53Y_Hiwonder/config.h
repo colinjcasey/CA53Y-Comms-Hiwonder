@@ -2,7 +2,7 @@
 // Pin map from a working XiaoZhi board definition for this board (HiwonderExploit_S3).
 #pragma once
 
-#define FW_VERSION "1.0.0"
+#define FW_VERSION "1.1.0"
 
 // ---------- screen: ST7789 240x320 on SPI, shown landscape 320x240 ----------
 #define LCD_SCLK        21
@@ -37,6 +37,9 @@
 #define PIN_BOOT        0      // short press: home; hold 5 s: erase everything
 
 // ---------- CA53Y mesh (must match every CA53Y device) ----------
+#ifndef LONG_RANGE
+#define LONG_RANGE      0   // 0 = Standard network, 1 = Long Range network. Standard and Long Range devices can't hear each other.
+#endif
 #define ESPNOW_CHANNEL  1
 #define MAX_HOPS        8
 #define SEND_TRIES      6
